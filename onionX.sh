@@ -121,8 +121,8 @@ fi
 
 # setup tor hidden service [error]
 
-echo -e "${yellow} starting tor hidden service on port $port ${red} change it if port is unavailable ${nc}"
-echo -e "${green} tor hidden service dir is here ${cyan} $tordir ${nc}"
+echo -e "[-] ${yellow} starting tor hidden service on port $port ${red} change it if port is unavailable ${nc}"
+echo -e "[-]${green} tor hidden service dir is here ${cyan} $tordir ${nc}"
 
 echo -e "${blue} configuring torrc file"
 # $sudo find $conf_dir/ -type f -name torrc -exec sudo sed -i "s/\#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//HiddenServiceDir \/hidden_service\//g" {} +
@@ -133,23 +133,22 @@ echo -e "HiddenServiceDir $PWD/hidden_service/" >> torrc
 echo -e "HiddenServicePort 80 127.0.0.1:$port" >> torrc
 
 # Start tor service
-echo -e "${yellow} Starting tor hidden service ${nc}"
-tor -f torrc --quiet
-echo -e "${red} tor started ${nc}"
+echo -e "[-] ${yellow} Starting tor hidden service ${nc}"
+tor -f torrc --quiet &
+echo -e "[-] ${red} tor started ${nc}"
 
-echo $bin
 # check onionX is installed or not
 if [ -e "$bin/tor" ]; then
   echo "pass"
-  if [ -d "$PWD/hidden_service" ]; then
+  if [ -d "$tordir" ]; then
     echo -e "$logo"
-    echo -e "${purple} onionX ${green}installed successfully !!${nc}"
-    echo -e "${green} Start your apache/nginx server on port $port ${nc}"
-    echo -e "${yellow} Check out your Website here - $(cat hidden_service/hostname) ${nc}"
-    echo -e "${purple} got errors, contact me here $contact ${nc}"
+    echo -e "[i]${purple} onionX ${green}installed successfully !!${nc}"
+    echo -e "[i]${green} Start your apache/nginx server on port $port ${nc}"
+    echo -e "[i]${yellow} Check out your Website here - $(cat hidden_service/hostname) ${nc}"
+    echo -e "[i]${purple} got errors, contact me here $contact ${nc}"
   else
     echo -e "$logo"
-    echo -e " ${red}Sorry ${cyan}: onionx ${red}is not installed !!${nc}"
-    echo -e " ${green}Please try again or contact me here $contact ${nc}"
+    echo -e "[i] ${red}Sorry ${cyan}: onionx ${red}is not installed !!${nc}"
+    echo -e "[i] ${green}Please try again or contact me here $contact ${nc}"
   fi
 fi
