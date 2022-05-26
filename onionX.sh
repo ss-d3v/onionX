@@ -18,17 +18,18 @@ ${yellow} / __ \ /    \|  |/ __ \ /    \ ${red}\    /
 ${yellow}(  \_\ )   |  \  |  \_\ )   |  ${red}\/    \ 
 ${yellow} \____/|___|  /__|\____/|___|  ${red}/___/\ \
 ${yellow}            \/               \/${red}      \/
-${cyan} A dark web website for everyone ${nc}"
+${cyan} A dark web website for everyone 
+${nc}"
 
-contact="
-${yellow}YouTube -      ${purple}https://youtube.com/c/pwnos
+contact="${yellow}YouTube -      ${purple}https://youtube.com/c/pwnos
 ${yellow}LinkedIn -     ${purple}https://linkedin.com/in/sam-sepi0l/
 ${yellow}Twitter -      ${purple}https://twitter.com/sam5epi0l
 ${yellow}Buymeacoffee - ${purple}https://www.buymeacoffee.com/sam5epi0l
+
 ${nc}"
 
 echo -e "$logo $contact"
-
+sleep 1
 # checking for system root access
 if [ "$(command -v sudo)" ]; then
   sudo="sudo"
@@ -37,7 +38,7 @@ else
   sudo=""
   echo -e "${blue}You're a powerful enough to install packages${nc}"
 fi
-
+sleep 1
 # checking for system home dir
 if [ -d "$HOME" ]; then
   home=$HOME
@@ -46,7 +47,7 @@ else
 fi
 
 echo -e "${blue} You live at ${green} $home ${nc}"
-
+sleep 1
 # checking for configuration dir
 if [ -d /data/data/com.termux/files/usr/etc ]; then
   tor_conf_dir="/data/data/com.termux/files/usr/etc/tor"
@@ -55,7 +56,7 @@ elif [ -d /etc ]; then
 fi
 
 echo -e "${blue} TOR default configurations are here ${green} $tor_conf_dir ${nc}"
-
+sleep 1
 # checking for system bin dir
 if [ -d /data/data/com.termux/files/usr/bin ]; then
   bin="/data/data/com.termux/files/usr/bin"
@@ -68,7 +69,7 @@ elif [ -d /usr/local/bin ]; then
 fi
 
 echo -e "${blue} Your bin directory is here $bin ${nc}"
-
+sleep 1
 # checking for system package manager
 if [ -e /data/data/com.termux/files/usr/bin/pkg ]; then
   pac="pkg"
@@ -92,9 +93,9 @@ elif [ "$(command -v brew)" ]; then
 fi
 
 echo -e "${blue} Your system is $system and $pac is the package manager ${nc}"
-
+sleep 1
 echo -e "${blue} You are currently installing in $PWD directory ${nc}"
-
+sleep 1
 # setup process
 
 echo -e "[-]${green} Installing .... ${nc}"
@@ -117,25 +118,28 @@ if [ ! "$(command -v tor)" ]; then
   fi
 fi
 #done
-
+sleep 1
 
 # setup tor hidden service [error]
 
 echo -e "[-] ${yellow} starting tor hidden service on port $port ${red} change it if port is unavailable ${nc}"
+sleep 1
 echo -e "[-]${green} tor hidden service dir is here ${cyan} $tordir ${nc}"
-
+sleep 1
 echo -e "${blue} configuring torrc file"
 # $sudo find $conf_dir/ -type f -name torrc -exec sudo sed -i "s/\#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//HiddenServiceDir \/hidden_service\//g" {} +
 # $sudo find $conf_dir/ -type f -name torrc -exec sudo sed -i "s/\#HiddenServicePort 80 127.0.0.1:80/HiddenServicePort 80 127.0.0.1:1337/g" {} +
 
 cp $tor_conf_dir/torrc .
-echo -e "HiddenServiceDir $PWD/hidden_service/" >> torrc
-echo -e "HiddenServicePort 80 127.0.0.1:$port" >> torrc
+echo "HiddenServiceDir $PWD/hidden_service/" >> torrc
+echo "HiddenServicePort 80 127.0.0.1:$port" >> torrc
 
 # Start tor service
 echo -e "[-] ${yellow} Starting tor hidden service ${nc}"
+sleep 1
 tor -f torrc --quiet &
 echo -e "[-] ${red} tor started ${nc}"
+sleep 1
 
 # check onionX is installed or not
 if [ -e "$bin/tor" ]; then
@@ -143,12 +147,17 @@ if [ -e "$bin/tor" ]; then
   if [ -d "$tordir" ]; then
     echo -e "$logo"
     echo -e "[i]${purple} onionX ${green}installed successfully !!${nc}"
+    sleep 1
     echo -e "[i]${green} Start your apache/nginx server on port $port ${nc}"
+    sleep 1
     echo -e "[i]${yellow} Check out your Website here - $(cat hidden_service/hostname) ${nc}"
+    sleep 1
     echo -e "[i]${purple} got errors, contact me here $contact ${nc}"
   else
     echo -e "$logo"
+    sleep 1
     echo -e "[i] ${red}Sorry ${cyan}: onionx ${red}is not installed !!${nc}"
+    sleep 1
     echo -e "[i] ${green}Please try again or contact me here $contact ${nc}"
   fi
 fi
