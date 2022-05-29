@@ -39,11 +39,19 @@ else
   echo -e "${blue}You're a powerful enough to install packages${nc}"
 fi
 sleep 1
+
 # checking for system home dir
-if [ -d "$HOME" ]; then
-  home=$HOME
-else
-  home="~/"
+if (( "${#HOME}" == 0 )); then
+  HOME="$(getent passwd "$(id -u)" | awk -F ':' '{print $6}')"
+  if (( "${#HOME}" == 0 )) || [[ ! -d "${HOME}" ]]; then
+    printf -- "{blue}%s%{nc}\n" "Could not identify HOME variable" >&2
+    exit 1
+  fi
+  if [[ ! -w "${HOME}" ]]; then
+    printf -- "{blue}%s%{nc}\n" "Permissions error: cannot write to $HOME" >&2
+    exit 1
+  fi
+  export HOME
 fi
 
 echo -e "${blue} You live at ${green} $home ${nc}"
