@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 nc="\033[00m"
 red="\033[01;31m"
 green="\033[01;32m"
@@ -28,15 +30,15 @@ ${yellow}Buymeacoffee - ${purple}https://www.buymeacoffee.com/sam5epi0l
 
 ${nc}"
 
-echo -e "$logo $contact"
+printf "%s %s\n" "$logo" "$contact"
 sleep 1
 # checking for system root access
-if [ "$(command -v sudo)" ]; then
+if command -v sudo >/dev/null; then
   sudo="sudo"
-  echo -e "${blue} Script will require sudo/root priviladges${nc}"
+  printf "${blue} Script will require sudo/root privileges${nc}\n"
 else
   sudo=""
-  echo -e "${blue}You're a powerful enough to install packages${nc}"
+  printf "${blue}You're powerful enough to install packages${nc}\n"
 fi
 sleep 1
 
@@ -44,71 +46,71 @@ sleep 1
 if (( "${#HOME}" == 0 )); then
   HOME="$(getent passwd "$(id -u)" | awk -F ':' '{print $6}')"
   if (( "${#HOME}" == 0 )) || [[ ! -d "${HOME}" ]]; then
-    printf -- "{blue}%s%{nc}\n" "Could not identify HOME variable" >&2
+    printf "${blue}%s${nc}\n" "Could not identify HOME variable" >&2
     exit 1
   fi
   if [[ ! -w "${HOME}" ]]; then
-    printf -- "{blue}%s%{nc}\n" "Permissions error: cannot write to $HOME" >&2
+    printf "${blue}%s${nc}\n" "Permissions error: cannot write to $HOME" >&2
     exit 1
   fi
   export HOME
 fi
 
-echo -e "${blue} You live at ${green} $home ${nc}"
+printf "${blue} You live at ${green} %s ${nc}\n" "$HOME"
 sleep 1
 # checking for configuration dir
-if [ -d /data/data/com.termux/files/usr/etc ]; then
+if [[ -d /data/data/com.termux/files/usr/etc ]]; then
   tor_conf_dir="/data/data/com.termux/files/usr/etc/tor"
-elif [ -d /etc ]; then
+elif [[ -d /etc ]]; then
   tor_conf_dir="/etc/tor"
 fi
 
-echo -e "${blue} TOR default configurations are here ${green} $tor_conf_dir ${nc}"
+printf "${blue} TOR default configurations are here ${green} %s ${nc}\n" "$tor_conf_dir"
 sleep 1
 # checking for system bin dir
-if [ -d /data/data/com.termux/files/usr/bin ]; then
+if [[ -d /data/data/com.termux/files/usr/bin ]]; then
   bin="/data/data/com.termux/files/usr/bin"
-elif [ -d /sbin ]; then
+elif [[ -d /sbin ]]; then
   bin="/sbin"
-elif [ -d /bin ]; then
+elif [[ -d /bin ]]; then
   bin="/bin"
-elif [ -d /usr/local/bin ]; then
+elif [[ -d /usr/local/bin ]]; then
   bin="/usr/local/bin"
 fi
 
-echo -e "${blue} Your bin directory is here $bin ${nc}"
+printf "${blue} Your bin directory is here %s ${nc}\n" "$bin"
 sleep 1
 # checking for system package manager
-if [ -e /data/data/com.termux/files/usr/bin/pkg ]; then
+if [[ -e /data/data/com.termux/files/usr/bin/pkg ]]; then
   pac="pkg"
   system="termux"
-elif [ "$(command -v apt)" ]; then
+elif command -v apt >/dev/null; then
   pac="apt"
   system="linux"
-elif [ "$(command -v apt-get)" ]; then
+elif command -v apt-get >/dev/null; then
   pac="apt-get"
   system="linux"
-elif [ "$(command -v apk)" ]; then
+elif command -v apk >/dev/null; then
   pac="apk"
   system="linux"
-elif [ "$(command -v yum)" ]; then
+elif command -v yum >/dev/null; then
   pac="yum"
   system="fedora"
-elif [ "$(command -v brew)" ]; then
+elif command -v brew >/dev/null; then
   pac="brew"
   system="mac"
   sudo=""
 fi
 
-echo -e "${blue} Your system is $system and $pac is the package manager ${nc}"
+printf "${blue} Your system is %s and %s is the package manager ${nc}\n" "$system" "$pac"
 sleep 1
-echo -e "${blue} You are currently installing in $PWD directory ${nc}"
+printf "${blue} You are currently installing in %s directory ${nc}\n" "$PWD"
 sleep 1
 # setup process
 
-echo -e "[-]${green} Installing .... ${nc}"
+printf "[-]${green} Installing .... ${nc}\n"
 sleep 1
-echo -e "[-]${yellow} Running setup .... ${nc}"
+printf "[-]${yellow} Running setup .... ${nc}\n"
 sleep 1
 
 # installing dependency
@@ -116,12 +118,12 @@ sleep 1
 # $sudo $pac update -y
 
 #for each_pac in "tor"; do
-if [ ! "$(command -v tor)" ]; then
-  if [ "$sudo" ]; then
-    echo -e "${blue} Installing tor with sudo${nc}"
+if ! command -v tor >/dev/null; then
+  if [[ "$sudo" ]]; then
+    printf "${blue} Installing tor with sudo${nc}\n"
     $sudo $pac install tor -y
   else
-    echo -e "${blue} Installing tor without sudo ${nc}"
+    printf "${blue} Installing tor without sudo ${nc}\n"
     $pac install tor -y
   fi
 fi
@@ -130,42 +132,41 @@ sleep 1
 
 # setup tor hidden service [error]
 
-echo -e "[-] ${yellow} starting tor hidden service on port $port ${red} change it if port is unavailable ${nc}"
+printf "[-] ${yellow} starting tor hidden service on port %s ${red} change it if port is unavailable ${nc}\n" "$port"
 sleep 1
-echo -e "[-]${green} tor hidden service dir is here ${cyan} $tordir ${nc}"
+printf "[-]${green} tor hidden service dir is here ${cyan} %s ${nc}\n" "$tordir"
 sleep 1
-echo -e "${blue} configuring torrc file"
-# $sudo find $conf_dir/ -type f -name torrc -exec sudo sed -i "s/\#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//HiddenServiceDir \/hidden_service\//g" {} +
-# $sudo find $conf_dir/ -type f -name torrc -exec sudo sed -i "s/\#HiddenServicePort 80 127.0.0.1:80/HiddenServicePort 80 127.0.0.1:1337/g" {} +
+printf "${blue} configuring torrc file\n"
 
-cp $tor_conf_dir/torrc .
+
+cp "$tor_conf_dir/torrc" .
 echo "HiddenServiceDir $PWD/hidden_service/" >> torrc
 echo "HiddenServicePort 80 127.0.0.1:$port" >> torrc
 
 # Start tor service
-echo -e "[-] ${yellow} Starting tor hidden service ${nc}"
+printf "[-] ${yellow} Starting tor hidden service ${nc}\n"
 sleep 1
 tor -f torrc --quiet &
-echo -e "[-] ${red} tor started ${nc}"
+printf "[-] ${red} tor started ${nc}\n"
 sleep 1
 
 # check onionX is installed or not
-if [ -e "$bin/tor" ]; then
+if [[ -e "$bin/tor" ]]; then
   echo "pass"
-  if [ -d "$tordir" ]; then
-    echo -e "$logo"
-    echo -e "[i]${purple} onionX ${green}installed successfully !!${nc}"
+  if [[ -d "$tordir" ]]; then
+    printf "%s\n" "$logo"
+    printf "[i]${purple} onionX ${green}installed successfully !!${nc}\n"
     sleep 1
-    echo -e "[i]${green} Start your apache/nginx server on port $port ${nc}"
+    printf "[i]${green} Start your apache/nginx server on port %s ${nc}\n" "$port"
     sleep 1
-    echo -e "[i]${yellow} Check out your Website here - $(cat hidden_service/hostname) ${nc}"
+    printf "[i]${yellow} Check out your Website here - %s ${nc}\n" "$(cat hidden_service/hostname)"
     sleep 1
-    echo -e "[i]${purple} got errors, contact me here $contact ${nc}"
+    printf "[i]${purple} got errors, contact me here %s ${nc}\n" "$contact"
   else
-    echo -e "$logo"
+    printf "%s\n" "$logo"
     sleep 1
-    echo -e "[i] ${red}Sorry ${cyan}: onionx ${red}is not installed !!${nc}"
+    printf "[i] ${red}Sorry ${cyan}: onionx ${red}is not installed !!${nc}\n"
     sleep 1
-    echo -e "[i] ${green}Please try again or contact me here $contact ${nc}"
+    printf "[i] ${green}Please try again or contact me here %s ${nc}\n" "$contact"
   fi
 fi
